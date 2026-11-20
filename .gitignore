@@ -1,0 +1,8 @@
+# Informes generados en local (en el CI se suben como artefactos)
+/reports/
+
+# Secretos: nunca en el repositorio (usar los secretos del pipeline)
+/.env
+/.token
+
+.DS_Store

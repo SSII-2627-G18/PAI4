@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="940" viewBox="0 0 680 470" role="img">
+<title>Pipeline DevSecOps v1</title>
+<desc>Cinco etapas: build, análisis con Semgrep y Trivy, staging, DAST con ZAP y producción. Gate A en modo aviso tras el análisis, gate B bloqueante tras el DAST. Un job final importa todos los informes a DefectDojo.</desc>
+<style>
+text{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+.t{font-size:14px;fill:#2C2C2A}
+.ts{font-size:12px;fill:#5F5E5A}
+.th{font-size:14px;font-weight:500;fill:#2C2C2A}
+.box,.box>rect{fill:#F1EFE8;stroke:#888780}
+.cont{fill:none;stroke:#888780}
+.arr{stroke:#5F5E5A;stroke-width:1.5;fill:none}
+.c-teal>rect,.c-teal>polygon{fill:#E1F5EE;stroke:#0F6E56}.c-teal .th{fill:#085041}.c-teal .ts{fill:#0F6E56}
+.c-amber>rect,.c-amber>polygon{fill:#FAEEDA;stroke:#854F0B}.c-amber .th{fill:#633806}.c-amber .ts{fill:#854F0B}
+.c-red>rect,.c-red>polygon{fill:#FCEBEB;stroke:#A32D2D}.c-red .th{fill:#791F1F}.c-red .ts{fill:#A32D2D}
+.c-purple>rect,.c-purple>polygon{fill:#EEEDFE;stroke:#534AB7}.c-purple .th{fill:#3C3489}.c-purple .ts{fill:#534AB7}
+</style>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5F5E5A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect width="680" height="470" fill="#FFFFFF"/>
+
+<rect class="box" x="210" y="16" width="260" height="30" rx="6" stroke-width="0.5"/>
+<text class="t" x="340" y="31" text-anchor="middle" dominant-baseline="central">Push o pull request a main</text>
+<path d="M210 31 H76 V68" class="arr" fill="none" marker-end="url(#arrow)"/>
+
+<rect class="cont" x="26" y="70" width="100" height="188" rx="8" stroke-width="0.5" stroke-dasharray="4 4"/>
+<rect class="cont" x="146" y="70" width="100" height="188" rx="8" stroke-width="0.5" stroke-dasharray="4 4"/>
+<rect class="cont" x="290" y="70" width="100" height="188" rx="8" stroke-width="0.5" stroke-dasharray="4 4"/>
+<rect class="cont" x="410" y="70" width="100" height="188" rx="8" stroke-width="0.5" stroke-dasharray="4 4"/>
+<rect class="cont" x="554" y="70" width="100" height="188" rx="8" stroke-width="0.5" stroke-dasharray="4 4"/>
+<text class="th" x="76" y="88" text-anchor="middle" dominant-baseline="central">Build</text>
+<text class="th" x="196" y="88" text-anchor="middle" dominant-baseline="central">Análisis</text>
+<text class="th" x="340" y="88" text-anchor="middle" dominant-baseline="central">Staging</text>
+<text class="th" x="460" y="88" text-anchor="middle" dominant-baseline="central">DAST</text>
+<text class="th" x="604" y="88" text-anchor="middle" dominant-baseline="central">Producción</text>
+
+<g class="box"><rect x="34" y="104" width="84" height="64" rx="6" stroke-width="0.5"/>
+<text class="th" x="76" y="127" text-anchor="middle" dominant-baseline="central">Imagen</text>
+<text class="ts" x="76" y="147" text-anchor="middle" dominant-baseline="central">docker build</text></g>
+
+<g class="c-teal"><rect x="154" y="104" width="84" height="64" rx="6" stroke-width="0.5"/>
+<text class="th" x="196" y="121" text-anchor="middle" dominant-baseline="central">Semgrep</text>
+<text class="ts" x="196" y="138" text-anchor="middle" dominant-baseline="central">SAST</text>
+<text class="ts" x="196" y="154" text-anchor="middle" dominant-baseline="central">semgrep.json</text></g>
+
+<g class="c-teal"><rect x="154" y="178" width="84" height="64" rx="6" stroke-width="0.5"/>
+<text class="th" x="196" y="195" text-anchor="middle" dominant-baseline="central">Trivy</text>
+<text class="ts" x="196" y="212" text-anchor="middle" dominant-baseline="central">IaC config</text>
+<text class="ts" x="196" y="228" text-anchor="middle" dominant-baseline="central">trivy.json</text></g>
+
+<g class="box"><rect x="298" y="104" width="84" height="64" rx="6" stroke-width="0.5"/>
+<text class="th" x="340" y="127" text-anchor="middle" dominant-baseline="central">Juice Shop</text>
+<text class="ts" x="340" y="147" text-anchor="middle" dominant-baseline="central">docker run</text></g>
+
+<g class="c-teal"><rect x="418" y="104" width="84" height="64" rx="6" stroke-width="0.5"/>
+<text class="th" x="460" y="121" text-anchor="middle" dominant-baseline="central">ZAP</text>
+<text class="ts" x="460" y="138" text-anchor="middle" dominant-baseline="central">DAST</text>
+<text class="ts" x="460" y="154" text-anchor="middle" dominant-baseline="central">zap.xml</text></g>
+
+<g class="box"><rect x="562" y="104" width="84" height="64" rx="6" stroke-width="0.5"/>
+<text class="th" x="604" y="121" text-anchor="middle" dominant-baseline="central">Deploy</text>
+<text class="ts" x="604" y="138" text-anchor="middle" dominant-baseline="central">solo main</text>
+<text class="ts" x="604" y="154" text-anchor="middle" dominant-baseline="central">aprob. manual</text></g>
+
+<line x1="126" y1="138" x2="146" y2="138" class="arr" marker-end="url(#arrow)"/>
+<line x1="246" y1="138" x2="255" y2="138" class="arr" marker-end="url(#arrow)"/>
+<line x1="281" y1="138" x2="290" y2="138" class="arr" marker-end="url(#arrow)"/>
+<line x1="390" y1="138" x2="410" y2="138" class="arr" marker-end="url(#arrow)"/>
+<line x1="510" y1="138" x2="519" y2="138" class="arr" marker-end="url(#arrow)"/>
+<line x1="545" y1="138" x2="554" y2="138" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-amber"><polygon points="268,124 281,138 268,152 255,138" stroke-width="0.5"/>
+<text class="th" x="268" y="138" text-anchor="middle" dominant-baseline="central">A</text></g>
+<g class="c-red"><polygon points="532,124 545,138 532,152 519,138" stroke-width="0.5"/>
+<text class="th" x="532" y="138" text-anchor="middle" dominant-baseline="central">B</text></g>
+
+<line x1="196" y1="258" x2="196" y2="298" class="arr" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+<line x1="460" y1="258" x2="460" y2="298" class="arr" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+
+<g class="c-purple"><rect x="26" y="300" width="628" height="48" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="319" text-anchor="middle" dominant-baseline="central">Job import-defectdojo</text>
+<text class="ts" x="340" y="336" text-anchor="middle" dominant-baseline="central">reimport-scan por API · se ejecuta siempre (if: always())</text></g>
+
+<g class="c-amber"><rect x="26" y="372" width="306" height="70" rx="8" stroke-width="0.5"/>
+<text class="th" x="179" y="391" text-anchor="middle" dominant-baseline="central">Gate A · modo aviso</text>
+<text class="ts" x="179" y="410" text-anchor="middle" dominant-baseline="central">continue-on-error: el pipeline sigue</text>
+<text class="ts" x="179" y="426" text-anchor="middle" dominant-baseline="central">Umbral: ≥1 hallazgo Critical/High</text></g>
+
+<g class="c-red"><rect x="348" y="372" width="306" height="70" rx="8" stroke-width="0.5"/>
+<text class="th" x="501" y="391" text-anchor="middle" dominant-baseline="central">Gate B · bloqueante</text>
+<text class="ts" x="501" y="410" text-anchor="middle" dominant-baseline="central">El pipeline falla y no hay deploy</text>
+<text class="ts" x="501" y="426" text-anchor="middle" dominant-baseline="central">Umbral: ≥1 alerta ZAP Medium o High</text></g>
+</svg>
