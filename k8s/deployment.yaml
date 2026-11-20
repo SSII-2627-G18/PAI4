@@ -1,0 +1,50 @@
+# ATENCIÓN: manifiesto INSEGURO A PROPÓSITO.
+# Sirve solo como objetivo del análisis de IaC (Trivy config) del pipeline.
+# NO se despliega en ningún clúster real.
+#
+# Malas prácticas introducidas deliberadamente:
+#   1. Imagen con la etiqueta "latest" (versión no reproducible).
+#   2. Contenedor privilegiado.
+#   3. Ejecución como root (runAsUser: 0).
+#   4. allowPrivilegeEscalation habilitado.
+#   5. Sistema de ficheros raíz con escritura.
+#   6. Sin límites de CPU ni memoria.
+#   7. Servicio expuesto directamente a Internet (LoadBalancer).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: juice-shop
+  labels:
+    app: juice-shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: juice-shop
+  template:
+    metadata:
+      labels:
+        app: juice-shop
+    spec:
+      containers:
+        - name: juice-shop
+          image: juice-shop:latest
+          ports:
+            - containerPort: 3000
+          securityContext:
+            privileged: true
+            runAsUser: 0
+            allowPrivilegeEscalation: true
+            readOnlyRootFilesystem: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: juice-shop
+spec:
+  type: LoadBalancer
+  selector:
+    app: juice-shop
+  ports:
+    - port: 80
+      targetPort: 3000
