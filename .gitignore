@@ -6,3 +6,9 @@
 /.token
 
 .DS_Store
+
+# DefectDojo efímero: el .env se genera en cada ejecución
+/ci/defectdojo/.env
+/ci/defectdojo/.salida
+
+__pycache__/
