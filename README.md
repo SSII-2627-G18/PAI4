@@ -20,9 +20,12 @@ Quality gates: A en modo aviso (tras el análisis) y B bloqueante (tras el DAST)
 | `k8s/deployment.yaml` | Manifiesto de Kubernetes **inseguro a propósito**, objetivo del análisis de IaC. No se despliega. |
 | `.github/workflows/devsecops.yml` | Pipeline de GitHub Actions: build → Semgrep + Trivy → gate A (aviso) → ZAP → gate B (bloqueante) → deploy simulado, y un job final que levanta un DefectDojo efímero, importa los informes, aplica el triaje y exporta los hallazgos. |
 | `scripts/gate.py` | Evalúa los informes contra el umbral de cada quality gate. |
+| `scripts/avisos.sh` | Avisa al equipo del resultado de los gates: comentario en la PR o, en un push, en el commit (menciona a su autor). |
 | `scripts/defectdojo_*.sh/.py` | Arrancan DefectDojo efímero, importan los informes por API y aplican el triaje como código (reglas y justificaciones versionadas). |
 | `ci/defectdojo/docker-compose.yml` | DefectDojo mínimo (v3.5.202) que se levanta dentro del runner de GitHub y desaparece al acabar el job. |
 | `docs/diagramas/` | Diagramas de diseño del pipeline. |
+| `docs/correspondencia-diagramas.md` | Dónde está implementado cada elemento de los dos diagramas. |
+| `docs/triaje.md` | Flujo de triaje, decisiones aplicadas y ajustes de reglas de las herramientas. |
 
 ## Configuración necesaria en GitHub
 
