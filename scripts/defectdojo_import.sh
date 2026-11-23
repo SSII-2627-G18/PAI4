@@ -48,7 +48,7 @@ importar() {  # $1 = tipo de escaneo en DefectDojo, $2 = fichero del informe
 }
 
 importar "Semgrep JSON Report" "$REPORTS/semgrep.json"
-importar "Trivy Scan"          "$REPORTS/trivy-config.json"
+importar "Trivy Scan"          "$REPORTS/trivy.json"
 importar "ZAP Scan"            "$REPORTS/zap.xml"
 
 exit "$fallos"

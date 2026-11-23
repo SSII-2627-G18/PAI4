@@ -69,6 +69,13 @@ def main():
         with open(destino, "a", encoding="utf-8") as f:
             f.write(resumen + "\n")
 
+    # Salidas del paso (las usa el job de avisos): cuántos superan el umbral y el detalle por severidad.
+    salida = os.environ.get("GITHUB_OUTPUT")
+    if salida:
+        detalle = ", ".join(f"{c[s]} {s}" for s in ORDEN if c[s]) or "sin hallazgos"
+        with open(salida, "a", encoding="utf-8") as f:
+            f.write(f"sobre={sobre}\ndetalle={detalle}\n")
+
     if sobre >= 1:
         print(f"::warning::{a.herramienta}: {sobre} hallazgo(s) {umbral} superan el umbral")
         return 1
