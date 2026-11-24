@@ -5,8 +5,8 @@ Triar es revisar cada hallazgo y decidir qué hacer con él, dejando una justifi
 
 ## Cómo funciona en este proyecto
 
-1. El pipeline importa los informes a DefectDojo (`scripts/defectdojo_import.sh`).
-2. El triaje automático (`scripts/defectdojo_triaje.py`) aplica las decisiones del equipo y deja una nota con la justificación en cada hallazgo.
+1. Se descargan los informes de la ejecución (artefactos `report-*`) y se importan a DefectDojo con `scripts/defectdojo_import.sh`.
+2. El triaje automático (`scripts/defectdojo_triaje.py`, ejecutado contra el DefectDojo local) aplica las decisiones del equipo y deja una nota con la justificación en cada hallazgo.
 3. El equipo revisa el resultado en DefectDojo y corrige lo que no comparta. Los hallazgos sin triar quedan *Active* para decidir.
 4. Si un hallazgo es un **falso positivo**: se marca como tal con su justificación **y se ajusta la regla de la herramienta** para que deje de aparecer.
 5. Si es una **vulnerabilidad real**: se corrige el código o la dependencia y se hace commit; el pipeline vuelve a ejecutarse.

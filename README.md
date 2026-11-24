@@ -18,20 +18,29 @@ Quality gates: A en modo aviso (tras el análisis) y B bloqueante (tras el DAST)
 |---|---|
 | `app/juice-shop/` | Código de OWASP Juice Shop fijado en la v20.4.0 (ver [app/UPSTREAM.md](app/UPSTREAM.md)). |
 | `k8s/deployment.yaml` | Manifiesto de Kubernetes **inseguro a propósito**, objetivo del análisis de IaC. No se despliega. |
-| `.github/workflows/devsecops.yml` | Pipeline de GitHub Actions: build → Semgrep + Trivy → gate A (aviso) → ZAP → gate B (bloqueante) → deploy simulado, y un job final que levanta un DefectDojo efímero, importa los informes, aplica el triaje y exporta los hallazgos. |
+| `.github/workflows/devsecops.yml` | Pipeline de GitHub Actions: build → Semgrep + Trivy → gate A (aviso) → ZAP → gate B (bloqueante) → deploy simulado, más un job de avisos al equipo. |
 | `scripts/gate.py` | Evalúa los informes contra el umbral de cada quality gate. |
 | `scripts/avisos.sh` | Avisa al equipo del resultado de los gates: comentario en la PR o, en un push, en el commit (menciona a su autor). |
-| `scripts/defectdojo_*.sh/.py` | Arrancan DefectDojo efímero, importan los informes por API y aplican el triaje como código (reglas y justificaciones versionadas). |
-| `ci/defectdojo/docker-compose.yml` | DefectDojo mínimo (v3.5.202) que se levanta dentro del runner de GitHub y desaparece al acabar el job. |
+| `scripts/defectdojo_*.sh/.py` | Importan a DefectDojo los informes de una ejecución (API) y aplican el triaje como código (reglas y justificaciones versionadas). Se ejecutan a mano contra el DefectDojo local; no forman parte del pipeline. |
+| `ci/defectdojo/docker-compose.yml` | DefectDojo mínimo y desechable (v3.5.202), de cuando el pipeline levantaba una instancia efímera. Hoy no lo usa el pipeline; se conserva para poder recuperarlo. |
 | `docs/diagramas/` | Diagramas de diseño del pipeline. |
 | `docs/correspondencia-diagramas.md` | Dónde está implementado cada elemento de los dos diagramas. |
 | `docs/triaje.md` | Flujo de triaje, decisiones aplicadas y ajustes de reglas de las herramientas. |
 
 ## Configuración necesaria en GitHub
 
-- **Secretos (opcionales)** (Settings → Secrets and variables → Actions): `DEFECTDOJO_URL` y `DEFECTDOJO_TOKEN`. Sin ellos, el pipeline usa un DefectDojo efímero dentro del runner; con ellos, importa en esa instancia externa.
+- **Secretos:** ahora no hace falta ninguno. Si el pipeline llegara a importar a un DefectDojo accesible desde Internet, harían falta `DEFECTDOJO_URL` y `DEFECTDOJO_TOKEN`.
 - **Entorno `production`** (Settings → Environments): añadir revisores obligatorios para que el despliegue exija aprobación manual.
 - Las herramientas se ejecutan como imágenes Docker fijadas por digest y las actions por hash de commit.
+
+## DefectDojo (local)
+
+Los informes de cada ejecución se guardan como artefactos (`report-semgrep`, `report-trivy`, `report-zap`). Se importan al DefectDojo local así:
+
+```bash
+DD_URL=http://127.0.0.1:8082 DD_TOKEN=<token> REPORTS=<carpeta con los informes> bash scripts/defectdojo_import.sh
+DD_URL=http://127.0.0.1:8082 DD_TOKEN=<token> python3 scripts/defectdojo_triaje.py
+```
 
 La aplicación es vulnerable a propósito: solo se analiza la versión desplegada por el propio equipo.
 

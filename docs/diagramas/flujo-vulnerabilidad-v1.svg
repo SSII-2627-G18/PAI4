@@ -23,7 +23,7 @@ text{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
 
 <g class="c-purple"><rect x="210" y="82" width="260" height="52" rx="8" stroke-width="0.5"/>
 <text class="th" x="340" y="102" text-anchor="middle" dominant-baseline="central">Informe a DefectDojo</text>
-<text class="ts" x="340" y="120" text-anchor="middle" dominant-baseline="central">job final, siempre, vía API</text></g>
+<text class="ts" x="340" y="120" text-anchor="middle" dominant-baseline="central">importación con script (API)</text></g>
 <line x1="340" y1="134" x2="340" y2="150" class="arr" marker-end="url(#arrow)"/>
 
 <g class="c-gray"><polygon points="340,150 455,186 340,222 225,186" stroke-width="0.5"/>

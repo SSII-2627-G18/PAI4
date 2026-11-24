@@ -76,8 +76,8 @@ rect.box,g.box>rect{fill:#F1EFE8;stroke:#888780}
 <line x1="460" y1="258" x2="460" y2="298" class="arr" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
 
 <g class="c-purple"><rect x="26" y="300" width="628" height="48" rx="8" stroke-width="0.5"/>
-<text class="th" x="340" y="319" text-anchor="middle" dominant-baseline="central">Job defectdojo · instancia efímera en el runner</text>
-<text class="ts" x="340" y="336" text-anchor="middle" dominant-baseline="central">reimport-scan por API + triaje · se ejecuta siempre (if: always())</text></g>
+<text class="th" x="340" y="319" text-anchor="middle" dominant-baseline="central">DefectDojo local · fuera del pipeline</text>
+<text class="ts" x="340" y="336" text-anchor="middle" dominant-baseline="central">informes descargados como artefactos → importación con scripts/defectdojo_import.sh y triaje</text></g>
 
 <g class="c-amber"><rect x="26" y="372" width="306" height="70" rx="8" stroke-width="0.5"/>
 <text class="th" x="179" y="391" text-anchor="middle" dominant-baseline="central">Gate A · modo aviso</text>
