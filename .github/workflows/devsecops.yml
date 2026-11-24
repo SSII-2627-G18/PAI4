@@ -19,10 +19,6 @@ env:
   # Gate B: riesgo ZAP mínimo que bloquea (3 = High, 2 = Medium). Con el escaneo baseline
   # Juice Shop no produce alertas High, por eso el umbral parte de Medium.
   ZAP_MIN_RISK: "2"
-  # DefectDojo: producto y engagement donde se organizan los resultados.
-  DD_PRODUCT_TYPE: Research and Development
-  DD_PRODUCT: Juice Shop G18
-  DD_ENGAGEMENT: Pipeline CI
 
 jobs:
   # ── Etapa 1 · Build ───────────────────────────────────────────────────────
@@ -188,58 +184,13 @@ jobs:
       - name: Despliegue simulado
         run: echo "Solo se llega aquí si el gate B ha pasado y alguien ha aprobado."
 
-  # ── Gestión de vulnerabilidades · DefectDojo ──────────────────────────────
-  # Se ejecuta siempre, incluso si un gate bloquea, para que los hallazgos queden registrados.
-  # Por defecto levanta un DefectDojo EFÍMERO dentro del propio runner: sin infraestructura ni
-  # secretos, y desaparece al acabar el job. Los resultados se conservan como artefacto.
-  # Si existen los secretos DEFECTDOJO_URL y DEFECTDOJO_TOKEN, importa en esa instancia externa.
-  defectdojo:
-    name: DefectDojo · importar, triar y exportar
-    needs: [sast, iac, dast]
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    env:
-      EXT_DD_URL: ${{ secrets.DEFECTDOJO_URL }}
-      EXT_DD_TOKEN: ${{ secrets.DEFECTDOJO_TOKEN }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          pattern: report-*
-          path: reports
-          merge-multiple: true
-      - name: DefectDojo efímero · levantar
-        if: env.EXT_DD_URL == '' || env.EXT_DD_TOKEN == ''
-        run: |
-          bash scripts/defectdojo_arrancar.sh
-          echo "DD_EPHEMERAL=true" >> "$GITHUB_ENV"
-      - name: DefectDojo externo · usar instancia de los secretos
-        if: env.EXT_DD_URL != '' && env.EXT_DD_TOKEN != ''
-        run: |
-          echo "DD_URL=$EXT_DD_URL" >> "$GITHUB_ENV"
-          echo "DD_TOKEN=$EXT_DD_TOKEN" >> "$GITHUB_ENV"
-      - name: Importar informes (reimport-scan por API)
-        run: bash scripts/defectdojo_import.sh
-      - name: Triaje y exportación (solo en la instancia efímera)
-        if: env.DD_EPHEMERAL == 'true'
-        run: python3 scripts/defectdojo_triaje.py --salida reports/defectdojo-hallazgos.json
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: always() && env.DD_EPHEMERAL == 'true'
-        with:
-          name: defectdojo-hallazgos
-          path: reports/defectdojo-hallazgos.json
-      - name: Registros de DefectDojo (solo si algo falla)
-        if: failure() && env.DD_EPHEMERAL == 'true'
-        run: docker compose -f ci/defectdojo/docker-compose.yml --env-file ci/defectdojo/.env logs --tail 60
-
   # ── Avisos al equipo ──────────────────────────────────────────────────────
   # Paso "se avisa" del diagrama 1.b: en una pull request comenta en la propia PR; en un push comenta en
   # el commit mencionando a quien lo subió (GitHub le envía un correo). Solo avisa si hay algo que atender.
   # Los permisos de escritura se limitan a este job y el token no se guarda en el checkout.
   avisos:
     name: Avisos al equipo (PR o commit)
-    needs: [gate-a, gate-b, defectdojo]
+    needs: [gate-a, gate-b]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -268,5 +219,4 @@ jobs:
           B_RESULTADO: ${{ needs.gate-b.result }}
           B_ZAP_SOBRE: ${{ needs.gate-b.outputs.zap_sobre }}
           B_ZAP_DETALLE: ${{ needs.gate-b.outputs.zap_detalle }}
-          DD_RESULTADO: ${{ needs.defectdojo.result }}
         run: bash scripts/avisos.sh

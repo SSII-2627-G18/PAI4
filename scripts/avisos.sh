@@ -9,7 +9,6 @@
 #   EVENTO, PR_NUM, ACTOR, SHA, REPO, RUN_URL
 #   A_SEMGREP_SOBRE, A_SEMGREP_DETALLE, A_TRIVY_SOBRE, A_TRIVY_DETALLE   (Gate A)
 #   B_RESULTADO (success|failure|skipped|cancelled), B_ZAP_SOBRE, B_ZAP_DETALLE   (Gate B)
-#   DD_RESULTADO (resultado del job de DefectDojo)
 #   AVISOS_DRY_RUN=1  -> imprime el mensaje en vez de publicarlo (para probar en local)
 set -euo pipefail
 
@@ -34,11 +33,7 @@ case "$B_RESULTADO" in
   *)         fila_b="| Gate B · ZAP (DAST) | Bloqueante | No se ha ejecutado (falló una etapa anterior) |" ;;
 esac
 
-if [ "${DD_RESULTADO:-}" = "success" ]; then
-  linea_dd="Los hallazgos se han importado a DefectDojo y se han triado: el resumen está en el job *DefectDojo* de la [ejecución](${RUN_URL:-#})."
-else
-  linea_dd="La importación a DefectDojo no se ha completado en esta ejecución: revisa el job *DefectDojo* de la [ejecución](${RUN_URL:-#})."
-fi
+linea_dd="Los informes de esta ejecución están como artefactos en la [ejecución](${RUN_URL:-#}), listos para importarlos a DefectDojo con \`scripts/defectdojo_import.sh\` y triarlos (ver \`docs/triaje.md\`)."
 
 cuerpo="## Resultado del pipeline de seguridad
 
@@ -51,7 +46,7 @@ $(fila_a "Gate A · Trivy (IaC)" "$A_TRIVY_SOBRE" "${A_TRIVY_DETALLE:-}")
 ${fila_b}
 
 ${linea_dd}
-Si algún hallazgo es un falso positivo, se marca en DefectDojo con su justificación y se ajusta la regla de la herramienta (ver \`docs/triaje.md\`)."
+Si algún hallazgo es un falso positivo, se marca en DefectDojo con su justificación y se ajusta la regla de la herramienta."
 
 if [ "${AVISOS_DRY_RUN:-0}" = "1" ]; then
   printf '%s\n' "$cuerpo"
