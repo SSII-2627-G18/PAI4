@@ -92,7 +92,9 @@ def main():
             continue
         est, nota = d
         api("PATCH", f"/findings/{h['id']}/", PARCHES[est])
-        api("POST", f"/findings/{h['id']}/notes/", {"entry": nota})
+        # Idempotente: si la nota con esta justificación ya existe, no se vuelve a añadir.
+        if not any(n.get("entry") == nota for n in h.get("notes") or []):
+            api("POST", f"/findings/{h['id']}/notes/", {"entry": nota})
         aplicados[est] += 1
     print("Triaje aplicado:", dict(aplicados))
 
