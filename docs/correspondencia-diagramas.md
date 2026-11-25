@@ -16,7 +16,7 @@ y dónde está implementado. Todo lo que aparece en el pipeline está en un diag
 | DAST · ZAP → `zap.xml` | job `dast`, paso «DAST · ZAP baseline» |
 | **Gate B**, bloqueante, umbral ZAP ≥ Medium | job `gate-b`, `scripts/gate.py` y la variable `ZAP_MIN_RISK` |
 | Producción, solo `main`, aprobación manual | job `deploy` y entorno `production` con revisor obligatorio |
-| DefectDojo local, fuera del pipeline (importación y triaje) | `scripts/defectdojo_import.sh` y `scripts/defectdojo_triaje.py`, ejecutados a mano contra el DefectDojo local con los artefactos de la ejecución |
+| Job `defectdojo` (importación por API) | job `defectdojo` y `scripts/defectdojo_import.sh`; DefectDojo corre en local y se alcanza por un túnel de Cloudflare |
 
 Nota sobre Staging: es una etapa del diagrama y un paso del workflow, no un job aparte, porque el contenedor desplegado no persiste
 entre jobs de GitHub Actions; se despliega y se ataca en la misma máquina.
@@ -26,21 +26,21 @@ entre jobs de GitHub Actions; se despliega y se ataca en la misma máquina.
 | Elemento del diagrama | Dónde está en el repositorio |
 |---|---|
 | Herramienta detecta un hallazgo | jobs `sast`, `iac` y `dast` (generan el informe) |
-| Informe a DefectDojo, por API | `scripts/defectdojo_import.sh` (API de DefectDojo), ejecutado a mano con los informes de la ejecución |
+| Informe a DefectDojo, siempre, por API | job `defectdojo` (`if: always()`) y `scripts/defectdojo_import.sh` |
 | ¿Supera el umbral? | `scripts/gate.py` |
 | «Sin bloqueo»: queda activo en DefectDojo | los hallazgos bajo el umbral se importan y quedan *Active* |
 | ¿Etapa bloqueante? | `gate-a` (aviso, no detiene) frente a `gate-b` (falla el job y `deploy` no se ejecuta) |
 | Modo aviso: sigue y avisa en la PR | `gate-a` y job `avisos` (comentario en la PR; en un push, en el commit) |
 | Bloquea (Gate B): sin deploy, avisa al autor | `gate-b` falla; job `avisos` comenta mencionando a quien subió el cambio |
-| Triaje en DefectDojo | `scripts/defectdojo_triaje.py` (reglas) y revisión del equipo en la interfaz |
+| Triaje en DefectDojo | `scripts/defectdojo_triaje.py` (reglas, se ejecuta a mano) y revisión del equipo en la interfaz |
 | ¿Falso positivo? → se justifica y se ajusta | nota de justificación en DefectDojo y ajuste de la regla (ver [triaje](triaje.md)) |
 | Corregir y commit, vuelve al inicio | manual: un nuevo `push` lanza otra vez el pipeline |
 
 ## Cosas a tener en cuenta
 
-- **Importación a DefectDojo:** es manual. DefectDojo corre en local y el servidor de GitHub no puede alcanzarlo, así que los informes se
-  descargan como artefactos de la ejecución y se importan con `scripts/defectdojo_import.sh`. Para automatizarlo haría falta un DefectDojo
-  accesible desde Internet (los scripts ya sirven; solo faltarían la dirección y el token como secretos).
+- **Importación a DefectDojo:** automática desde el pipeline. DefectDojo corre en el portátil del equipo y se expone con un túnel de Cloudflare
+  (dirección temporal: hay que actualizar el secreto `DEFECTDOJO_URL` cada vez que se abre el túnel). Si el túnel está cerrado, el job falla y los
+  informes siguen disponibles como artefactos para importarlos a mano.
 
 - **Avisos:** en una pull request el aviso va a la propia PR; en un push, como comentario del commit con mención a quien lo subió
   (GitHub le envía un correo). Si no hay nada que atender, no se publica nada.
