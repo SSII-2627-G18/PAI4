@@ -9,6 +9,7 @@
 #   EVENTO, PR_NUM, ACTOR, SHA, REPO, RUN_URL
 #   A_SEMGREP_SOBRE, A_SEMGREP_DETALLE, A_TRIVY_SOBRE, A_TRIVY_DETALLE   (Gate A)
 #   B_RESULTADO (success|failure|skipped|cancelled), B_ZAP_SOBRE, B_ZAP_DETALLE   (Gate B)
+#   DD_IMPORTADO (true si el job de DefectDojo importó los informes)
 #   AVISOS_DRY_RUN=1  -> imprime el mensaje en vez de publicarlo (para probar en local)
 set -euo pipefail
 
@@ -33,7 +34,11 @@ case "$B_RESULTADO" in
   *)         fila_b="| Gate B · ZAP (DAST) | Bloqueante | No se ha ejecutado (falló una etapa anterior) |" ;;
 esac
 
-linea_dd="Los informes de esta ejecución están como artefactos en la [ejecución](${RUN_URL:-#}), listos para importarlos a DefectDojo con \`scripts/defectdojo_import.sh\` y triarlos (ver \`docs/triaje.md\`)."
+if [ "${DD_IMPORTADO:-}" = "true" ]; then
+  linea_dd="Los hallazgos se han importado automáticamente a DefectDojo, donde quedan para triarlos (ver \`docs/triaje.md\`). Los informes también están como artefactos de la [ejecución](${RUN_URL:-#})."
+else
+  linea_dd="No se ha podido importar a DefectDojo en esta ejecución (¿túnel cerrado o secretos sin configurar?). Los informes están como artefactos de la [ejecución](${RUN_URL:-#}) y se pueden importar a mano con \`scripts/defectdojo_import.sh\`."
+fi
 
 cuerpo="## Resultado del pipeline de seguridad
 
