@@ -1,7 +1,7 @@
 # Triaje de hallazgos
 
 Triar es revisar cada hallazgo y decidir qué hacer con él, dejando una justificación. Corresponde al paso 3 del
-[diagrama de flujo](diagramas/flujo-vulnerabilidad-v1.svg).
+[diagrama de flujo](diagramas/flujo-vulnerabilidad-v2.svg).
 
 ## Cómo funciona en este proyecto
 

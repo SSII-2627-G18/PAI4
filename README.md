@@ -7,7 +7,7 @@ Pipeline CI/CD con pruebas de seguridad automatizadas sobre OWASP Juice Shop.
 | Diagrama | Fichero |
 |---|---|
 | Pipeline DevSecOps (objetivo 1.a) | [docs/diagramas/pipeline-v1.svg](docs/diagramas/pipeline-v1.svg) |
-| Flujo ante una vulnerabilidad (objetivo 1.b) | [docs/diagramas/flujo-vulnerabilidad-v1.svg](docs/diagramas/flujo-vulnerabilidad-v1.svg) |
+| Flujo ante una vulnerabilidad (objetivo 1.b) | [docs/diagramas/flujo-vulnerabilidad-v2.svg](docs/diagramas/flujo-vulnerabilidad-v2.svg) |
 
 Herramientas previstas: Semgrep (SAST), Trivy config (IaC), ZAP (DAST) y DefectDojo (gestión de vulnerabilidades).
 Quality gates: A en modo aviso (tras el análisis) y B bloqueante (tras el DAST).
@@ -21,7 +21,7 @@ Quality gates: A en modo aviso (tras el análisis) y B bloqueante (tras el DAST)
 | `.github/workflows/devsecops.yml` | Pipeline de GitHub Actions: build → Semgrep + Trivy → gate A (aviso) → ZAP → gate B (bloqueante) → deploy simulado, más la importación a DefectDojo y los avisos al equipo. |
 | `scripts/gate.py` | Evalúa los informes contra el umbral de cada quality gate. |
 | `scripts/avisos.sh` | Avisa al equipo del resultado de los gates: comentario en la PR o, en un push, en el commit (menciona a su autor). |
-| `scripts/defectdojo_*.sh/.py` | Importan los informes a DefectDojo por la API (lo usa el pipeline) y aplican el triaje como código (reglas y justificaciones versionadas; este se ejecuta a mano). |
+| `scripts/defectdojo_*.sh/.py` | Importan los informes a DefectDojo por la API (lo usa el pipeline), activan la deduplicación y aplican el triaje como código (reglas y justificaciones versionadas; estos dos se ejecutan a mano). |
 | `ci/defectdojo/docker-compose.yml` | DefectDojo mínimo y desechable (v3.5.202), de cuando el pipeline levantaba una instancia efímera. Hoy no lo usa el pipeline; se conserva para poder recuperarlo. |
 | `docs/diagramas/` | Diagramas de diseño del pipeline. |
 | `docs/correspondencia-diagramas.md` | Dónde está implementado cada elemento de los dos diagramas. |

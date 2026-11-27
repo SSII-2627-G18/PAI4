@@ -1,6 +1,6 @@
 # Correspondencia entre los diagramas y el pipeline
 
-Cada elemento de los dos diagramas ([pipeline](diagramas/pipeline-v1.svg) y [flujo ante una vulnerabilidad](diagramas/flujo-vulnerabilidad-v1.svg))
+Cada elemento de los dos diagramas ([pipeline](diagramas/pipeline-v1.svg) y [flujo ante una vulnerabilidad](diagramas/flujo-vulnerabilidad-v2.svg))
 y dónde está implementado. Todo lo que aparece en el pipeline está en un diagrama, y viceversa.
 
 ## Diagrama 1.a · Pipeline
@@ -23,18 +23,25 @@ entre jobs de GitHub Actions; se despliega y se ataca en la misma máquina.
 
 ## Diagrama 1.b · Flujo ante una vulnerabilidad
 
-| Elemento del diagrama | Dónde está en el repositorio |
-|---|---|
-| Herramienta detecta un hallazgo | jobs `sast`, `iac` y `dast` (generan el informe) |
-| Informe a DefectDojo, siempre, por API | job `defectdojo` (`if: always()`) y `scripts/defectdojo_import.sh` |
-| ¿Supera el umbral? | `scripts/gate.py` |
-| «Sin bloqueo»: queda activo en DefectDojo | los hallazgos bajo el umbral se importan y quedan *Active* |
-| ¿Etapa bloqueante? | `gate-a` (aviso, no detiene) frente a `gate-b` (falla el job y `deploy` no se ejecuta) |
-| Modo aviso: sigue y avisa en la PR | `gate-a` y job `avisos` (comentario en la PR; en un push, en el commit) |
-| Bloquea (Gate B): sin deploy, avisa al autor | `gate-b` falla; job `avisos` comenta mencionando a quien subió el cambio |
-| Triaje en DefectDojo | `scripts/defectdojo_triaje.py` (reglas, se ejecuta a mano) y revisión del equipo en la interfaz |
-| ¿Falso positivo? → se justifica y se ajusta | nota de justificación en DefectDojo y ajuste de la regla (ver [triaje](triaje.md)) |
-| Corregir y commit, vuelve al inicio | manual: un nuevo `push` lanza otra vez el pipeline |
+La columna «Comprobado» indica cómo se verificó cada rama sobre el DefectDojo real del equipo.
+
+| Elemento del diagrama | Dónde está en el repositorio | Comprobado |
+|---|---|---|
+| Herramienta detecta un hallazgo | jobs `sast`, `iac` y `dast` (generan el informe) | Ejecuciones de GitHub |
+| ¿Supera el umbral? | `scripts/gate.py` | Gate A y B en las ejecuciones |
+| «Sin bloqueo»: se importa igual | el job `defectdojo` importa todos los hallazgos, superen o no el umbral | Importación de 147 hallazgos |
+| ¿Etapa bloqueante? | `gate-a` (aviso, no detiene) frente a `gate-b` (falla el job y `deploy` no se ejecuta) | Ejecuciones de GitHub |
+| Modo aviso: sigue y avisa en la PR | `gate-a` y job `avisos` (comentario en la PR; en un push, en el commit) | Comentario del bot en el commit |
+| Bloquea (Gate B): sin deploy, avisa al autor | `gate-b` falla; job `avisos` comenta mencionando a quien subió el cambio | Comentario del bot en el commit |
+| El informe llega a DefectDojo, siempre, vía API | job `defectdojo` (`if: always()`) y `scripts/defectdojo_import.sh` | Importación por la API |
+| ¿Ya existe? Sí: se actualiza, no se crea otro | `reimport-scan` de DefectDojo, que compara con los hallazgos del mismo test | Reimportar el mismo informe: 0 nuevos, 0 duplicados, 0 cambios de estado |
+| Ciclo de vida: si no aparece, se cierra; si reaparece, se reabre | `close_old_findings=true` en `scripts/defectdojo_import.sh` | Quitar un hallazgo del informe lo cerró (inactivo y mitigado); al volver a importarlo se reabrió el mismo registro |
+| ¿Lo repite otro test? Sí: se marca Duplicate | Deduplicación activada en DefectDojo (`scripts/defectdojo_configurar.sh`) | Importar el mismo informe como test nuevo: 26 de 26 hallazgos marcados Duplicate, apuntando al original |
+| Hallazgo nuevo: se crea como Active | `reimport-scan` | Primera importación |
+| ¿Qué severidad tiene? SLA de 7, 30, 90 y 120 días | Configuración de SLA de DefectDojo (la que trae por defecto) | Los hallazgos activos muestran sus días restantes: 23 (High), 83 (Medium) y 113 (Low) |
+| Triaje en DefectDojo | `scripts/defectdojo_triaje.py` (reglas, se ejecuta a mano) y revisión del equipo en la interfaz | 4 falsos positivos, 94 fuera de alcance y 25 verificados |
+| Falso positivo / fuera de alcance / riesgo aceptado / real | Estados de DefectDojo. El riesgo aceptado solo se fija en la interfaz, no por API | Notas de justificación en cada hallazgo |
+| Corregir y commit, vuelve al inicio | manual: un nuevo `push` lanza otra vez el pipeline | n/a |
 
 ## Cosas a tener en cuenta
 
